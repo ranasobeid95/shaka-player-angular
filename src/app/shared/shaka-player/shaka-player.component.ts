@@ -1,10 +1,17 @@
-import { Component,OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
+import { Platform } from '@angular/cdk/platform';
 
-declare let shaka:any ;
+declare let shaka: any;
 @Component({
   selector: 'app-shaka-player',
   templateUrl: './shaka-player.component.html',
-  styleUrls: ['./shaka-player.component.css']
+  styleUrls: ['./shaka-player.component.css'],
 })
 export class ShakaPlayerComponent implements OnInit {
   @ViewChild('videoPlayer') videoElementRef: ElementRef | undefined;
@@ -14,19 +21,26 @@ export class ShakaPlayerComponent implements OnInit {
   videoContainerElement: HTMLDivElement | undefined;
   player: any;
 
-  constructor() { }
+  constructor(private platform: Platform) {}
 
   private initPlayer() {
     this.player = new shaka.Player(this.videoElement);
-  
+
+    let videoUrl =
+      'http://www.bok.net/dash/tears_of_steel/cleartext/stream.mpd';
+    if (this.platform.SAFARI) {
+      videoUrl =
+        'http://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.m3u8';
+    }
+
     const ui = new shaka.ui.Overlay(
       this.player,
       this.videoContainerElement,
       this.videoElement
     );
-  
+
     this.player
-      .load('http://www.bok.net/dash/tears_of_steel/cleartext/stream.mpd')
+      .load(videoUrl)
       .then(() => {
         this.videoElement?.play();
       })
@@ -35,9 +49,7 @@ export class ShakaPlayerComponent implements OnInit {
       });
   }
 
-
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     shaka.polyfill.installAll();
@@ -49,5 +61,4 @@ export class ShakaPlayerComponent implements OnInit {
       console.error('Browser not supported!');
     }
   }
-
 }
